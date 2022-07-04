@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">AppLocation</string>
+    <string name="app_name">Map Location</string>
+
+
+    <string name="google_maps_key">AIzaSyDMfVBHC-hrrIGDKBn_fglzyxKMbGGFyy8</string>
+
 </resources>

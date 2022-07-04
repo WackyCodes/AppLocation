@@ -1,4 +1,4 @@
-package com.wackycodes.map;
+package com.wackycodes.mapapp;
 
 import org.junit.Test;
 

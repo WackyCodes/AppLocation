@@ -3,14 +3,18 @@ plugins {
 }
 
 android {
-    compileSdk 32
+
+    compileSdkVersion 32
+//    buildToolsVersion "32.1.0-rc1"
 
     defaultConfig {
-        applicationId "com.wackycodes.map"
-        minSdk 21
-        targetSdk 32
+        applicationId "com.wackycodes.mapapp"
+        minSdkVersion 19 // 21 for gradle 7.0 or above
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
+
+        multiDexEnabled true // Enable MultiDex
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -25,15 +29,29 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    buildFeatures{
+        dataBinding = true
+    }
+
 }
 
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    //------ Google Map SDK -------------------------------------------------------
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+
+
+    //------ Map Location Library -------------------------------------------------------
+    implementation project(path: ':MapLocation')
 
 
 }

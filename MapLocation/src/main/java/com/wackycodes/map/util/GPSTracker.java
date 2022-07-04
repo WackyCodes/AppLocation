@@ -40,6 +40,9 @@ import java.util.concurrent.TimeUnit;
 
 
 public class GPSTracker extends Service implements LocationListener {
+    public GPSTracker( ) {
+        this.mContext = getApplicationContext();
+    }
     // Get Class Name
     private static String TAG = GPSTracker.class.getName();
 
@@ -248,8 +251,12 @@ public class GPSTracker extends Service implements LocationListener {
 
     public List<Address> getGeocoderAddress(Context context) {
         if (location != null) {
-
-            Geocoder geocoder = new Geocoder(context, Locale.forLanguageTag("hi"));
+            Geocoder geocoder = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                geocoder = new Geocoder(context, Locale.forLanguageTag("hi"));
+            }else{
+                geocoder = new Geocoder(context);
+            }
 
             try {
                 /**
@@ -270,7 +277,12 @@ public class GPSTracker extends Service implements LocationListener {
 
     public List<Address> getGeocoderAddress(Context context, Location location,  double latitude, double longitude) {
         if (location != null) {
-            Geocoder geocoder = new Geocoder(context, Locale.forLanguageTag("hi"));
+            Geocoder geocoder = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                geocoder = new Geocoder(context, Locale.forLanguageTag("hi"));
+            }else{
+                geocoder = new Geocoder(context);
+            }
             try {
                 /**
                  * Geocoder.getFromLocation - Returns an array of Addresses
@@ -416,7 +428,6 @@ public class GPSTracker extends Service implements LocationListener {
         isGPSTrackingEnabled = GPSTrackingEnabled;
     }
 
-
     //=---------------------------------------------------------------------------------------------
 
     public void initGPSEnabled() {
@@ -465,7 +476,7 @@ public class GPSTracker extends Service implements LocationListener {
                                     // Show the dialog by calling startResolutionForResult(), and check the
                                     // result in onActivityResult().
                                     ResolvableApiException rae = (ResolvableApiException) exception;
-                                    rae.startResolutionForResult((Activity) mContext, Constants.GPS_REQUEST);
+                                    rae.startResolutionForResult((Activity) mContext, Constants.GPS_REQUEST );
                                 } catch (IntentSender.SendIntentException sie) {
                                     Log.i(TAG, "PendingIntent unable to execute request.");
                                 }
@@ -483,6 +494,10 @@ public class GPSTracker extends Service implements LocationListener {
     //=---------------------------------------------------------------------------------------------\\
     public interface OnGpsListener {
         void gpsStatus(boolean isGPSEnable);
+        String getLatLng( );
+        String getAddressLine( );
+        double getLatitude();
+        double getLongitude();
     }
 
 }

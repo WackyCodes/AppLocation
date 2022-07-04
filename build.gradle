@@ -5,10 +5,21 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.0.3"
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:4.1.1'
+
+        // Uncomment below if gradle 7.0.2 or above Upgrade !
+//        classpath "com.android.tools.build:gradle:7.0.3"
+
+    }
+}
+
+// When you upgrade the gradle 7.0.2 or above, allprojects{ } will be moved into setting.gradle file!
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
     }
 }
 
