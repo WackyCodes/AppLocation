@@ -1,26 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
+plugins {
+    id 'com.android.application' version '7.2.1' apply false
+    id 'com.android.library' version '7.2.1' apply false
 
-        classpath 'com.android.tools.build:gradle:4.1.1'
 
-        // Uncomment below if gradle 7.0.2 or above Upgrade !
-//        classpath "com.android.tools.build:gradle:7.0.3"
+    // Map - Used for Secrets
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin' version '2.0.1' apply false
 
-    }
-}
-
-// When you upgrade the gradle 7.0.2 or above, allprojects{ } will be moved into setting.gradle file!
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
-    }
 }
 
 task clean(type: Delete) {

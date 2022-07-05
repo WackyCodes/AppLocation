@@ -1,10 +1,13 @@
-package com.wackycodes.mapapp;
+package com.wackycodes.mapapp.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
-import androidx.databinding.DataBindingUtil;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,61 +16,39 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.wackycodes.map.fragment.FragmentDialogGetLocationLocation;
+import com.wackycodes.mapapp.R;
+import com.wackycodes.mapapp.databinding.FragmentDialogGetLocationBinding;
 
-import com.wackycodes.map.ActivityGetLocationLocation;
-import com.wackycodes.mapapp.databinding.ActivityShowLocationBinding;
+public class FragmentDialogGetLocation extends FragmentDialogGetLocationLocation implements OnMapReadyCallback {
 
-/*******************************************************************************
- * WackyCodes - Copyright (c) 2022.
- *
- *  This file created by Shailendra Lodhi  on  04/07/2022, 11:03 AM
- *  Check : https://linktr.ee/wackycodes
- *  ===========================================================
- *  File Name : ActivityShowLocation.java
- *  Description :
- *  ======================   Updates History    ========================
- *  S.No. -|-  Updated By -|- Updated Date -|- Remarks
- *  1.    -    Shailendra    -   04/07/2022   -   File Created
- *
- ******************************************************************************/
+    public FragmentDialogGetLocation( Context context ) {
+        super( context );
+    }
 
-public class ActivityShowLocation extends ActivityGetLocationLocation implements OnMapReadyCallback {
-
-    private GoogleMap mMap;
-
-    private ActivityShowLocationBinding locationBinding;
+    private FragmentDialogGetLocationBinding locationBinding;
+    // Just put this code above onCreateView method
+    @Override
+    public int getTheme() {
+        return R.style.DialogTheme;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        locationBinding = DataBindingUtil.setContentView( this, R.layout.activity_show_location );
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        locationBinding = FragmentDialogGetLocationBinding.inflate( inflater, container, false );
 
-        try {
-            getSupportActionBar().setTitle( "My Location" );
-            getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-        }catch (Exception e){
-            e.printStackTrace();
-        }
 
         // Obtain the SupportMapFragment and get notified when the mapapp is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.myLocationMap);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myLocationFragmentMap);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
+        return locationBinding.getRoot();
     }
 
-    public void setToolBar(Toolbar toolbar, @Nullable String title, boolean isHomesUpEnabled) {
-        try {
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-            getSupportActionBar().setTitle(title != null ? title : getString(R.string.app_name));
-            getSupportActionBar().setDisplayHomeAsUpEnabled(isHomesUpEnabled);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+    private GoogleMap mMap;
 
     /**
      * Manipulates the mapapp once available.
@@ -132,6 +113,7 @@ public class ActivityShowLocation extends ActivityGetLocationLocation implements
     public void onReceiveLatLng(double latitude, double longitude, @Nullable String addressLine) {
         setMyLocationMarker( latitude, longitude, addressLine );
     }
+
 
 
 }

@@ -1,24 +1,34 @@
-package com.wackycodes.map;
+package com.wackycodes.map.fragment;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+import static android.app.Activity.RESULT_OK;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.wackycodes.map.listener.Constants;
 import com.wackycodes.map.listener.OnPermissionListener;
 import com.wackycodes.map.util.GPSTracker;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class ActivityGetGPSLocation extends BaseActivityLocation
-        implements GPSTracker.OnGpsListener {
+public abstract class FragmentDialogGetLocationLocation extends BaseFragmentDialog  implements GPSTracker.OnLocationListener {
+    public FragmentDialogGetLocationLocation(Context context) {
+        super(context);
+        this.context = context;
+    }
+
+    private Context context;
+
     private String latLng = "";
     private String addressLine = "";
     private double latitude = 0;
@@ -26,14 +36,23 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
     // GPSTracker is main helper class to do most of the things
     private GPSTracker gpsTracker;
     private boolean isGPSOn = false;
+    private boolean isShowing = true;
+
+    // Required Enable GPS ---
+    private boolean isForcedEnableGps = true;
 
     // Location Service..
     private FusedLocationProviderClient fusedLocationClient;
 
-    @Override
+    public void setForcedEnableGps(boolean forcedEnableGps) {
+        isForcedEnableGps = forcedEnableGps;
+    }
+
     public String getLatLng(){
         return latLng;
     }
+
+    public abstract void onReceiveLatLng(double lat, double lng, @Nullable String addressLine );
 
     @Override
     public String getAddressLine(){
@@ -50,13 +69,16 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
         return longitude;
     }
 
-    public abstract void onReceiveLatLng(double lat, double lng, @Nullable String addressLine );
+    @Override
+    public void onLoadGPSLocation( double latitude, double longitude, @Nullable String addressLine  ){
+        onReceiveLatLng( latitude, longitude, addressLine );
+    }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         // Assign the gpsTracker ..!
-        gpsTracker = new GPSTracker(ActivityGetGPSLocation.this);
+        gpsTracker = new GPSTracker( getCurrContext() );
         if (isLocationPermissionGranted()) {
             // Call method to Get User Location  ..!
             getLocation();
@@ -68,14 +90,15 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
     // Get User Location : Device Location !
     public void getLocation() {
         showDebugLog("getLocation 1 ");
-        runOnUiThread(() -> {
-            if (isGPSOn) {
-                showDebugLog("getLocation 2 " + isGPSOn);
-                gpsTracker.getLocation();
+        if (isGPSOn) {
+            showDebugLog("getLocation : GPS On... " );
+
+            requireActivity().runOnUiThread(() -> {
+                gpsTracker.queryToLoadLocation();
                 latitude = gpsTracker.getLatitude();
                 longitude = gpsTracker.getLongitude();
                 latLng = String.valueOf(latitude) + "," + String.valueOf(longitude);
-                addressLine = gpsTracker.getAddressLine(this);
+                addressLine = gpsTracker.getAddressLine( getCurrContext() );
                 // TODO : Set addressLine in your TextView
                 showDebugLog("LOCATION : " + "LAT_LNG : " + latLng + " \nADDRESS : " + addressLine);
                 if (addressLine == null || latLng.equalsIgnoreCase("0.0,0.0")) {
@@ -84,29 +107,27 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
                 }else{
                     onReceiveLatLng( latitude, longitude, addressLine );
                 }
+            });
 
-            } else {
-//                new GpsUtils( this ).turnGPSOn( this );
-                showDebugLog("getLocation 3 " + isGPSOn);
-                gpsTracker.initGPSEnabled();
+        } else {
+            showDebugLog("getLocation : GPS is not On");
+            gpsTracker.initGPSEnabled();
 
-                // Show In-App System Dialog to enable GPS
-                gpsTracker.turnGPSOn(this);
-            }
-        });
+            // Show In-App System Dialog to enable GPS
+            gpsTracker.turnGPSOn(this, registerForActivityResult );
+        }
     }
 
     // Get User Location : FusedLocation Service
     //    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission")
     private void getFusedLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            showDebugLog("PERMISSION Return ");
+        if ( !isLocationPermissionGranted() ){
             return;
         }
 
         if (fusedLocationClient == null)
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient( getCurrContext() );
 
         fusedLocationClient.getLastLocation()
                 .addOnCompleteListener(task -> {
@@ -118,7 +139,7 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
                             latLng = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
-                            addressLine = gpsTracker.getAddressLine(this, location, location.getLatitude(), location.getLongitude());
+                            addressLine = gpsTracker.getAddressLine( getCurrContext(), location, location.getLatitude(), location.getLongitude());
                             // TODO : Set addressLine in your TextView
                             showDebugLog("FUSED_LOC : LAT_LNG : " + latLng + " \nADDRESS : " + addressLine);
 
@@ -143,26 +164,13 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constants.GPS_REQUEST) { // int GPS_REQUEST = 101;
-            // Call gpsStatus until We didn't get GPS Enable
-            if (resultCode == RESULT_OK) {
-                gpsStatus(true);
-            } else {
-                gpsStatus(false);
-            }
-        }
-    }
-
-    @Override
     public void gpsStatus(boolean isGPSEnable) {
         isGPSOn = isGPSEnable;
         if (isGPSEnable) {
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if (!ActivityGetGPSLocation.this.isDestroyed()) {
+                    if ( isShowing ) {
                         getLocation();
                     }
                 }
@@ -170,8 +178,30 @@ public abstract class ActivityGetGPSLocation extends BaseActivityLocation
         } else {
             gpsTracker.initGPSEnabled();
             // Show In-App System Dialog to enable GPS
-            gpsTracker.turnGPSOn(this);
+            gpsTracker.turnGPSOn(this, registerForActivityResult);
         }
     }
+
+    // Activity Launcher to Enable Location!
+    private ActivityResultLauncher<IntentSenderRequest> registerForActivityResult =
+            registerForActivityResult( new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                // Call gpsStatus until We didn't get GPS Enable
+                if (result.getResultCode() == RESULT_OK) {
+                    gpsStatus(true);
+                } else if ( isForcedEnableGps ) {
+                    gpsStatus(false);
+                }
+            });
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        this.isShowing = false;
+    }
+
+    private Context getCurrContext( ){
+        return context != null ? context : requireContext();
+    }
+
 
 }

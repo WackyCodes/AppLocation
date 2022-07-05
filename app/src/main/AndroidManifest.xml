@@ -28,7 +28,7 @@
         <!-- MAP SDK -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="${MAPS_API_KEY}" />
         <!-- Recommended for Android 9 (API level 28) and lower. -->
 
     </application>

@@ -1,4 +1,4 @@
-package com.wackycodes.map;
+package com.wackycodes.mapapp;
 
 import android.Manifest;
 import android.content.Intent;
@@ -14,21 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.wackycodes.map.listener.OnPermissionListener;
 
-/*******************************************************************************
- * WackyCodes - Copyright (c) 2022.
- *
- *  This file created by Shailendra Lodhi  on  04/07/2022, 11:03 AM
- *  Check : https://linktr.ee/wackycodes
- *  ===========================================================
- *  File Name : BaseActivityLocation.java
- *  Description :
- *  ======================   Updates History    ========================
- *  S.No. -|-  Updated By -|- Updated Date -|- Remarks
- *  1.    -    Shailendra    -   04/07/2022   -   File Created
- *
- ******************************************************************************/
-
-class BaseActivityLocation extends AppCompatActivity
+public class RootActivity extends AppCompatActivity
         implements OnPermissionListener {
     private static final int REQUEST_PERMISSION_STORAGE = 100;
     private static final int REQUEST_PERMISSION_LOCATION = 101;

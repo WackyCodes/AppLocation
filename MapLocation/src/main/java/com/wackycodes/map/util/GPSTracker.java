@@ -21,11 +21,15 @@ import android.util.Log;
 import android.location.Address;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -38,6 +42,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+/*******************************************************************************
+ * WackyCodes - Copyright (c) 2022.
+ *
+ *  This file created by Shailendra Lodhi  on  04/07/2022, 11:03 AM
+ *  Check : https://linktr.ee/wackycodes
+ *  ===========================================================
+ *  File Name : GPSTracker.java
+ *  Description :
+ *  ======================   Updates History    ========================
+ *  S.No. -|-  Updated By -|- Updated Date -|- Remarks
+ *  1.    -    Shailendra    -   04/07/2022   -   File Created
+ *
+ ******************************************************************************/
 
 public class GPSTracker extends Service implements LocationListener {
     public GPSTracker( ) {
@@ -57,9 +74,11 @@ public class GPSTracker extends Service implements LocationListener {
     // flag for GPS Tracking is enabled
     boolean isGPSTrackingEnabled = false;
 
-    Location location;
-    public double latitude;
-    public double longitude;
+    // Variable to Hold Data..!
+    private Location location;
+    private double latitude;
+    private double longitude;
+    private String addressLine;
 
     // How many Geocoder should return our GPSTracker
     int geocoderMaxResults = 1;
@@ -84,7 +103,7 @@ public class GPSTracker extends Service implements LocationListener {
      * Try to get my current location by GPS or Network Provider
      */
     @SuppressLint("MissingPermission")
-    public void getLocation() {
+    public void queryToLoadLocation() {
         try {
             if (locationManager == null)
                 locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
@@ -454,7 +473,7 @@ public class GPSTracker extends Service implements LocationListener {
     private LocationRequest locationRequest;
 
     // method for turn on GPS
-    public void turnGPSOn(OnGpsListener gpsListener) {
+    public void turnGPSOn(OnGpsListener gpsListener, @Nullable ActivityResultLauncher<IntentSenderRequest> requestPermissionLauncher ) {
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             if (gpsListener != null) {
                 gpsListener.gpsStatus(true);
@@ -476,7 +495,12 @@ public class GPSTracker extends Service implements LocationListener {
                                     // Show the dialog by calling startResolutionForResult(), and check the
                                     // result in onActivityResult().
                                     ResolvableApiException rae = (ResolvableApiException) exception;
-                                    rae.startResolutionForResult((Activity) mContext, Constants.GPS_REQUEST );
+                                    if (requestPermissionLauncher != null){
+                                        requestPermissionLauncher.launch( new IntentSenderRequest.Builder( rae.getResolution()).build() );
+                                    }else{
+                                        rae.startResolutionForResult((Activity) mContext, Constants.GPS_REQUEST );
+                                    }
+
                                 } catch (IntentSender.SendIntentException sie) {
                                     Log.i(TAG, "PendingIntent unable to execute request.");
                                 }
@@ -492,12 +516,40 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     //=---------------------------------------------------------------------------------------------\\
-    public interface OnGpsListener {
-        void gpsStatus(boolean isGPSEnable);
-        String getLatLng( );
+    public interface OnLocationListener extends OnGpsListener{
         String getAddressLine( );
         double getLatitude();
         double getLongitude();
     }
+
+    public interface OnGpsListener {
+        void gpsStatus(boolean isGPSEnable);
+        void onLoadGPSLocation( double latitude, double longitude, @Nullable String addressLine );
+    }
+
+    //----------------------------------------------------------------------------------------------
+    @SuppressLint("MissingPermission")
+    public void setOnLoadFusedLocation( Context context, OnGpsListener gpsListener ){
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient( context );
+        fusedLocationClient.getLastLocation()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Location location = task.getResult();
+                        if (location != null) {
+                            // Logic to handle location object
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            addressLine = getAddressLine(this, location, location.getLatitude(), location.getLongitude());
+                            gpsListener.onLoadGPSLocation( latitude, longitude, addressLine );
+                        } else {
+                            gpsListener.onLoadGPSLocation( 0, 0, null );
+                        }
+                    } else {
+                        gpsListener.onLoadGPSLocation( 0, 0, "Task failed!" );
+                    }
+                });
+    }
+
+
 
 }

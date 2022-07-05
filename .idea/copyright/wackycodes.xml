@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="$file.fileName" />
+    <option name="notice" value="&#10;  WackyCodes - Copyright (c) 2022.&#10; &#10;   This file created by Shailendra Lodhi  on &amp;#36;today&#10;   Check : https://linktr.ee/wackycodes&#10;   ===========================================================&#10;   File Name : &amp;#36;file.fileName&#10;   Description :&#10;   ======================   Updates History    ========================&#10;   S.No. -|-  Updated By -|- Updated Date -|- Remarks&#10;   1.    -    Shailendra    -  &amp;#36;today.format( &quot;ddMMyyyy&quot;)   -   File Created&#10;" />
+    <option name="myName" value="wackycodes" />
+  </copyright>
+</component>

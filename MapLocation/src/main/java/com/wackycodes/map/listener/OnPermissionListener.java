@@ -1,5 +1,19 @@
 package com.wackycodes.map.listener;
 
+/*******************************************************************************
+ * WackyCodes - Copyright (c) 2022.
+ *
+ *  This file created by Shailendra Lodhi  on  04/07/2022, 11:03 AM
+ *  Check : https://linktr.ee/wackycodes
+ *  ===========================================================
+ *  File Name : OnPermissionListener.java
+ *  Description :
+ *  ======================   Updates History    ========================
+ *  S.No. -|-  Updated By -|- Updated Date -|- Remarks
+ *  1.    -    Shailendra    -   04/07/2022   -   File Created
+ *
+ ******************************************************************************/
+
 public interface OnPermissionListener {
     int PERMISSION_CODE_LOCATION = 101;
 

@@ -1,15 +1,18 @@
 plugins {
     id 'com.android.application'
+
+    // Map - Used for Secrets
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+
 }
 
 android {
 
     compileSdkVersion 32
-//    buildToolsVersion "32.1.0-rc1"
 
     defaultConfig {
         applicationId "com.wackycodes.mapapp"
-        minSdkVersion 19 // 21 for gradle 7.0 or above
+        minSdkVersion 21
         targetSdkVersion 32
         versionCode 1
         versionName "1.0"
