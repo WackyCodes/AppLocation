@@ -7,7 +7,7 @@ AppLocation is used to get user current location and you can get user current ad
 
 ## Step : 1 - 
 Add `jitpack.io` in the Project Level _build.gradle_ file
-```
+```groovy
 allprojects {
   repositories {
     ...
@@ -17,7 +17,7 @@ allprojects {
 ```
 Add `dependencies` in the Module Level _build.gradle_ file 
 ( **Use Current Version** - [![](https://jitpack.io/v/WackyCodes/AppLocation.svg)](https://jitpack.io/#WackyCodes/AppLocation) )
-```
+```groovy
 dependencies {
        implementation 'com.github.WackyCodes:AppLocation:1.0.1'
 }
@@ -29,7 +29,7 @@ dependencies {
 
 extends `ActivityGetLocationLocation` and override `onReceiveLatLng()` method.
 You can use below methods after for the rest of the process.
-```
+```java
         String getAddressLine( );
         double getLatitude();
         double getLongitude();
@@ -39,7 +39,7 @@ You can use below methods after for the rest of the process.
 
 extends `FragmentDialogGetLocationLocation` and override `onReceiveLatLng()` method.
 You can use below methods after for the rest of the process.
-```
+```java
         String getAddressLine( );
         double getLatitude();
         double getLongitude();
@@ -52,7 +52,7 @@ To implement this option, you need to follow some steps -
 **Step 3.1:-** implements `GPSTracker.OnGpsListener`
 
 **Step 3.2:-** Use below code -
-```
+```java
     // GPSTracker is main helper class to do most of the things
     private GPSTracker gpsTracker;
     private boolean isGPSOn = false;
@@ -72,7 +72,7 @@ To implement this option, you need to follow some steps -
 ```
 
 **Step 3.3-** Assign the `gpsTracker` variable in the `onStart` method and use below code
-```
+```java
  // Assign the gpsTracker ..!
         gpsTracker = new GPSTracker( MainActivity.this );
         if ( isLocationPermissionGranted() ) {
@@ -96,7 +96,7 @@ To implement this option, you need to follow some steps -
 ```
 
 **Step 3.4-** Final method `getCurrentLocation`, you can check below ( Optional ) 
-```
+```java
    // Get User Location : Device Location !
     public void getCurrentLocation() {
         runOnUiThread(() -> {
